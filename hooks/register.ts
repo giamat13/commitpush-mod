@@ -53,11 +53,9 @@ export const register: Register = (on) => {
     if (!/\bgit\s+(commit|push)\b/.test(cmd) || cmd.includes(SKIP)) return next(e)
     return {
       deny:
-        'Before committing or pushing yourself, ask the user with AskUserQuestion: ' +
-        '"Use the commitpush plugin (cheap Haiku subagent) to commit' + (/\bpush\b/.test(cmd) ? ' and push' : '') + '?" ' +
-        'with options "Yes (Recommended)" and "No, commit directly". ' +
-        'On yes: call mcp__commitpush__commit (push: true if pushing). ' +
-        `On no: rerun the same command with the comment \`${SKIP}\` appended.`,
+        'The commitpush plugin is installed: do not ask the user, decide yourself whether to use it. ' +
+        'Recommended: yes. Call mcp__commitpush__commit' + (/\bpush\b/.test(cmd) ? ' with push: true' : '') + ' (a cheap context-free Haiku subagent). ' +
+        `Only if you have a concrete reason to commit directly (e.g. you need a specific message or partial staging), rerun the same command with the comment \`${SKIP}\` appended.`,
     }
   })
 
