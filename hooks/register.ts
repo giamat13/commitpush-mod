@@ -41,14 +41,14 @@ export const register: Register = (on) => {
 
   // Model-callable version of /commit and /commitpush.
   on('tool.run', { tool: 'mcp__commitpush__commit' }, async ($, e) => {
-    const input = (e.input ?? {}) as { push?: boolean; hint?: string }
+    const input = e as { push?: boolean; hint?: string }
     const name = input.push ? 'commitpush' : 'commit'
     return { result: await start($, name, input.hint) }
   })
 
   // When Claude runs git commit/push itself, make it ask the user first.
   on('tool.call', { tool: 'Bash' }, ($, e, next) => {
-    const cmd = String((e.input as { command?: string })?.command ?? '')
+    const cmd = String((e as { command?: unknown }).command ?? '')
     if (e.agentId && names.has(e.agentId)) return next(e) // our committer
     if (!/\bgit\s+(commit|push)\b/.test(cmd) || cmd.includes(SKIP)) return next(e)
     return {
