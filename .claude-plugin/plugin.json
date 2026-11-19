@@ -1,0 +1,1 @@
+{ "name": "commitpush", "version": "0.1.0", "description": "/commit and /commitpush run on a context-free Haiku 5.5 subagent at low effort.", "author": { "name": "GIAMAT13" } }

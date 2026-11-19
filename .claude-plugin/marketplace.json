@@ -1,0 +1,1 @@
+{ "name": "commitpush-mod", "owner": { "name": "GIAMAT13" }, "plugins": [ { "name": "commitpush", "source": "./", "description": "/commit and /commitpush via Haiku 5.5, low effort, no context." } ] }
