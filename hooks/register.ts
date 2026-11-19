@@ -7,15 +7,14 @@ const BASE =
   'End with one short line: the commit hash and message.'
 const PUSH = ' After committing, run `git push` (set upstream with `git push -u origin HEAD` if none). Report the push result in the final line.'
 
-const waiting = new Map<string, (s: string) => void>()
-const done = new Map<string, string>()
+const names = new Map<string, string>()
 
 export const register: Register = (on) => {
   on('session.start', async ($, e, next) => {
     await $.agent.register({
       name: 'committer',
-      description: 'Commits (and optionally pushes) git changes with no prior context.',
-      prompt: BASE,
+      description: 'Commits (and optionally pushes) git changes, with no prior context.',
+      prompt: BASE + '',
       tools: ['Bash'],
       model: 'claude-haiku-5-5',
       effort: 'low',
@@ -27,9 +26,10 @@ export const register: Register = (on) => {
   })
 
   on('turn.complete', ($, e, next) => {
-    if (e.agentId) {
-      const r = waiting.get(e.agentId)
-      if (r) { waiting.delete(e.agentId); r(e.answer) } else done.set(e.agentId, e.answer)
+    if (e.agentId && names.has(e.agentId)) {
+      const n = names.get(e.agentId)
+      names.delete(e.agentId)
+      $.ui.toast(`/${n}: ${e.answer || '(no output)'}`)
     }
     return next(e)
   })
@@ -42,11 +42,8 @@ export const register: Register = (on) => {
         (push ? PUSH : '') + (e.args ? ` Hint from the user: ${e.args}` : '')
       const { agentId, deny } = await $.agent.spawn({ subagentType: 'commitpush:committer', prompt, description: name })
       if (deny || !agentId) return { text: `${name} refused: ${deny ?? 'no agent'}` }
-      const answer = done.has(agentId)
-        ? done.get(agentId)!
-        : await new Promise<string>((res) => waiting.set(agentId, res))
-      done.delete(agentId)
-      return { text: answer || '(no output)' }
+      names.set(agentId, name)
+      return { text: `/${name} started on Haiku 5.5 (low effort); the result will appear as a notice.` }
     })
   }
 }
